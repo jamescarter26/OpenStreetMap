@@ -1,5 +1,8 @@
 # OpenStreetMap
 web-based mapping application using open street
+Preview Web APP: 
+![image](https://github.com/user-attachments/assets/1da1d1cb-f90c-4310-8f8b-d828b3b37f89)
+
 The purpose of the project you're working on is to create a web-based mapping application that allows users to:
 
     Add location pins:
@@ -43,3 +46,25 @@ This type of project can be used for:
     Personal mapping: Allowing a user to track their travels or favorite spots.
 
     Geospatial data collection: For various use cases where you need to collect and display location-based data.
+
+Strucuture Project
+/xampp
+  /htdocs
+    /osm_map_app
+      /index.html             ← Main front-end file
+      /save_pin.php           ← PHP to save new pin (latitude, longitude)
+      /get_pins.php           ← PHP to get all saved pins
+      /delete_pin.php         ← PHP to delete a pin by ID
+      /config.php             ← Database connection (optional)
+      /css
+        /style.css            ← Custom styles (optional)
+      /js
+        /main.js              ← JavaScript to handle the map, adding pins, etc.
+      /uploads
+        ← Folder for any file uploads (optional)
+      /assets
+        ← Folder for images, icons, etc.
+      /database
+        /osm_app_pins.sql     ← SQL to create database and table with sample data
+
+
