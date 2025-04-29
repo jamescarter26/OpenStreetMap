@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSM Map App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // Initialize the map
+  const map = L.map('map').setView([0, 0], 2);
+
+  // Load and display OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(map);
+
+  // Function to add a marker
+  function addMarker(pin) {
+    const marker = L.marker([pin.latitude, pin.longitude]).addTo(map);
+    const popupContent = `
+      ID: ${pin.id}<br/>
+      <button onclick="deletePin(${pin.id})">Delete</button>
+    `;
+    marker.bindPopup(popupContent);
+  }
+
+  // Function to delete a pin
+  function deletePin(id) {
+    fetch('delete_pin.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'id=' + id
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Pin deleted successfully!');
+        loadPins();  // Reload the pins after successful deletion
+      } else {
+        alert('Failed to delete pin.');
+      }
+    });
+  }
+
+  // Load all saved pins from the database
+  function loadPins() {
+    fetch('get_pins.php')
+      .then(res => res.json())
+      .then(data => {
+        // Clear all existing markers on the map
+        map.eachLayer(layer => {
+          if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+          }
+        });
+        // Add new markers after clearing old ones
+        data.forEach(addMarker);
+      })
+      .catch(error => {
+        console.error('Error loading pins:', error);
+      });
+  }
+
+  // Initial load of pins
+  loadPins();
+
+  // Add a new pin on map click
+  map.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+
+    fetch('save_pin.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'lat=' + lat + '&lng=' + lng
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        addMarker({ id: data.id, latitude: lat, longitude: lng });
+      } else {
+        alert('Failed to save pin.');
+      }
+    })
+    .catch(error => {
+      console.error('Error saving pin:', error);
+    });
+  });
+</script>
+
+</body>
+</html>
